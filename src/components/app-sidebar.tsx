@@ -12,6 +12,7 @@ import {
   Download,
   LifeBuoy,
   Send,
+  Component,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -28,6 +29,10 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { ThemeChanger } from "@/components/theme-changer";
+import { CreateDocument } from "@/components/create-document";
+import { DeleteDocument } from "@/components/delete-document";
+import { DocumentHistory } from "@/components/document-history";
+import { OpenDocument } from "@/components/open-document";
 
 const data = {
   user: {
@@ -40,21 +45,29 @@ const data = {
       name: "New",
       url: "#",
       icon: FileText,
+      componentTitle: "Create Document",
+      component: <CreateDocument />,
     },
     {
       name: "Open",
       url: "#",
       icon: Folder,
+      componentTitle: "Open Document",
+      component: <OpenDocument />,
     },
     {
       name: "Delete",
       url: "#",
       icon: Trash2,
+      componentTitle: "Delete Document",
+      component: <DeleteDocument />,
     },
     {
       name: "History",
       url: "#",
       icon: History,
+      componentTitle: "Document History",
+      component: <DocumentHistory />,
     },
   ],
   navSecondary: [

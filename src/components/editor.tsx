@@ -1,11 +1,21 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ReactQuill from "react-quill-new";
 import "react-quill-new/dist/quill.snow.css";
 import "@/styles/editor.css";
+import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import socket from "socket.io-client";
 
-export function Editor() {
-  const [value, setValue] = useState("");
+const Editor = ({ id }: { id: string }) => {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [value, setValue] = useState<any>(null);
+  const quillRef = useRef<any>(null);
+
+  const io = socket(process.env.NEXT_PUBLIC_BASE_URL);
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
   const quillModules = {
     toolbar: [
@@ -33,14 +43,70 @@ export function Editor() {
     },
   };
 
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${id}?populate=*`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        if (res?.data?.data?.snapshots?.length > 0) {
+          setValue(
+            res.data.data.snapshots[res.data.data.snapshots.length - 1].content
+          );
+        }
+      })
+      .catch((err) => {
+        toast({
+          variant: "destructive",
+          title: "Failed to create document.",
+          description: err.response.data.message,
+        });
+
+        // router.back();
+      });
+  }, [id]);
+
+  useEffect(() => {
+    io.emit("joinRoom", id);
+
+    io.on("receiveChanges", async (data, error) => {
+      console.log("data ", data);
+      setValue(data);
+    });
+
+    return () => {
+      io.emit("leaveRoom", id);
+    };
+  }, [id]);
+
+  const handleEditorChange = (
+    content: any,
+    delta: any,
+    source: any,
+    editor: any
+  ) => {
+    if (delta !== value) {
+      io.emit(
+        "documentEdit",
+        { documentId: id, delta: content },
+        (error: any) => {}
+      );
+    }
+  };
+
   return (
     <ReactQuill
+      ref={quillRef}
       theme="snow"
       modules={quillModules}
       // formats={quillFormats}
       value={value}
-      onChange={setValue}
+      onChange={handleEditorChange}
       className="w-full bg-background rounded-md "
     />
   );
-}
+};
+
+export { Editor };
