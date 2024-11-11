@@ -42,30 +42,31 @@ const Editor = ({ id }: { id: string }) => {
   const [snapshot, setSnapshot] = useState<any>();
 
   const { toast } = useToast();
-  const router = useRouter();
 
   const user = localStorage.getItem("user")
     ? JSON.parse(localStorage.getItem("user") as string)
     : null;
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${id}?populate=*`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res) => {})
-      .catch((err) => {
-        toast({
-          variant: "destructive",
-          title: "Failed to load document.",
-          description: err.response.data.message,
-        });
+    async function postRecentDocument() {
+      await axios
+        .post(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/recents`,
+          {
+            documentId: id,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {})
+        .catch((err) => {});
+    }
 
-        router.back();
-      });
-  }, [id]);
+    postRecentDocument();
+  }, []);
 
   useEffect(() => {
     const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
@@ -79,7 +80,6 @@ const Editor = ({ id }: { id: string }) => {
     const editor = quillRef.current.getEditor();
 
     const timer = setInterval(() => {
-      console.log("Saving document...", editor.getContents());
       socket.emit("save-document", {
         snapshotId: snapshot?.id,
         content: editor.getContents(),
@@ -143,7 +143,7 @@ const Editor = ({ id }: { id: string }) => {
     setContent(newContent);
     if (socket == null) return;
     if (source !== "user") return;
-    console.log("Sending changes...", delta);
+
     if (quillRef.current) {
       const editor = quillRef.current.getEditor();
       const range = editor.getSelection();

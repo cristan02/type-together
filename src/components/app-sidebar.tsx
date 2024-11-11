@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Command,
   FileText,
@@ -33,122 +33,166 @@ import { CreateDocument } from "@/components/create-document";
 import { DeleteDocument } from "@/components/delete-document";
 import { DocumentHistory } from "@/components/document-history";
 import { OpenDocument } from "@/components/open-document";
+import { useToast } from "@/hooks/use-toast";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
-const data = {
-  user: {
-    name: "Ashbourn",
-    email: "ashbourn@mitwpu.edu.in",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  navMain: [
-    {
-      name: "New",
-      url: "#",
-      icon: FileText,
-      componentTitle: "Create Document",
-      component: <CreateDocument />,
-    },
-    {
-      name: "Open",
-      url: "#",
-      icon: Folder,
-      componentTitle: "Open Document",
-      component: <OpenDocument />,
-    },
-    {
-      name: "Delete",
-      url: "#",
-      icon: Trash2,
-      componentTitle: "Delete Document",
-      component: <DeleteDocument />,
-    },
-    {
-      name: "History",
-      url: "#",
-      icon: History,
-      componentTitle: "Document History",
-      component: <DocumentHistory />,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Recent",
-      url: "#",
-      icon: Rows3,
-      isActive: true,
-      items: [
-        {
-          title: "one",
-          url: "#",
-        },
-        {
-          title: "two",
-          url: "#",
-        },
-        {
-          title: "three",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Starred",
-      url: "#",
-      icon: Star,
-      items: [
-        {
-          title: "one",
-          url: "#",
-        },
-        {
-          title: "two",
-          url: "#",
-        },
-        {
-          title: "three",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Download",
-      url: "#",
-      icon: Download,
-      items: [
-        {
-          title: "PDF Document (.pdf)",
-          url: "#",
-        },
-        {
-          title: "Microsoft Word (.docx)",
-          url: "#",
-        },
-        {
-          title: "Plain Text (.txt)",
-          url: "#",
-        },
-        {
-          title: "Markdown (.md)",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navThird: [
-    {
-      title: "Support",
-      url: "/support",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "/feedback",
-      icon: Send,
-    },
-  ],
+const user = {
+  name: "Ashbourn",
+  email: "ashbourn@mitwpu.edu.in",
+  avatar: "/avatars/shadcn.jpg",
 };
 
+const navMain = [
+  {
+    name: "New",
+    url: "#",
+    icon: FileText,
+    componentTitle: "Create Document",
+    component: <CreateDocument />,
+  },
+  {
+    name: "Open",
+    url: "#",
+    icon: Folder,
+    componentTitle: "Open Document",
+    component: <OpenDocument />,
+  },
+  {
+    name: "Delete",
+    url: "#",
+    icon: Trash2,
+    componentTitle: "Delete Document",
+    component: <DeleteDocument />,
+  },
+  {
+    name: "History",
+    url: "#",
+    icon: History,
+    componentTitle: "Document History",
+    component: <DocumentHistory />,
+  },
+];
+
+const navSecondary = [
+  {
+    title: "Recent",
+    url: "#",
+    icon: Rows3,
+    isActive: true,
+    items: [],
+  },
+  {
+    title: "Starred",
+    url: "#",
+    icon: Star,
+    items: [],
+  },
+  {
+    title: "Download",
+    url: "#",
+    icon: Download,
+    items: [
+      {
+        title: "PDF Document (.pdf)",
+        url: "#",
+      },
+      {
+        title: "Microsoft Word (.docx)",
+        url: "#",
+      },
+      {
+        title: "Plain Text (.txt)",
+        url: "#",
+      },
+      {
+        title: "Markdown (.md)",
+        url: "#",
+      },
+    ],
+  },
+];
+
+const navThird = [
+  {
+    title: "Support",
+    url: "/support",
+    icon: LifeBuoy,
+  },
+  {
+    title: "Feedback",
+    url: "/feedback",
+    icon: Send,
+  },
+];
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { toast } = useToast();
+
+  const [data, setData] = useState({
+    user: user,
+    navMain: navMain,
+    navSecondary: navSecondary,
+    navThird: navThird,
+  });
+
+  useEffect(() => {
+    axios
+      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/starred-and-recents`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      })
+      .then((res) => {
+        const recents = res.data.recents
+          .filter((item: any) => item !== null)
+          .map((item: any) => {
+            const { title, documentId } = item;
+            return { title, url: `/document/${documentId}` };
+          });
+
+        const starred = res.data.starred.map((item: any) => {
+          const { title, documentId } = item;
+          return { title, url: `/document/${documentId}` };
+        });
+
+        setData({
+          ...data,
+          navSecondary: [
+            {
+              ...data.navSecondary[0],
+              items: recents,
+            },
+            {
+              ...data.navSecondary[1],
+              items: starred,
+            },
+            ...data.navSecondary.slice(2),
+          ],
+        });
+
+        console.log(" test ", {
+          ...data,
+          navSecondary: [
+            {
+              ...data.navSecondary[0],
+              items: recents,
+            },
+            {
+              ...data.navSecondary[1],
+              items: starred,
+            },
+            ...data.navSecondary.slice(2),
+          ],
+        });
+      })
+      .catch((err) => {});
+  }, []);
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
