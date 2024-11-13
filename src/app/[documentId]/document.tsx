@@ -14,6 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
+import { Chat } from "@/components/chat";
+import { Message } from "@/components/chat";
+import io from "socket.io-client";
 
 const Editor = dynamic(
   () => import("@/components/editor").then((mod) => mod.default),
@@ -74,7 +77,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
             description: "Please try again later.",
           });
 
-          // router.back();
+          router.back();
         });
 
       axios
@@ -178,6 +181,52 @@ const Document = ({ params }: { params: { documentId: string } }) => {
     }
   }, [doc]);
 
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [socket, setSocket] = useState<any>();
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && user) {
+      const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
+        extraHeaders: {
+          userid: user?.id,
+          username: user?.username,
+          auth: localStorage.getItem("token") || "",
+        },
+      });
+
+      setSocket(socket);
+
+      const handleMessages = (newMessage: Message) => {
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
+      };
+
+      socket.emit("chat-room", documentId);
+      socket.on("receive-message", handleMessages);
+
+      return () => {
+        socket.off("receive-message", handleMessages);
+        socket.disconnect();
+      };
+    }
+  }, [user]);
+
+  const handleSendMessage = () => {
+    if (socket == null) return;
+    if (message.trim() === "") return;
+
+    console.log(message);
+    const newMessage = {
+      id: Date.now().toString(),
+      user: user,
+      message: message,
+      timestamp: new Date(),
+    };
+
+    socket.emit("send-message", newMessage);
+    setMessage("");
+  };
+
   if (loading) return <p>Loading...</p>;
 
   return (
@@ -213,7 +262,12 @@ const Document = ({ params }: { params: { documentId: string } }) => {
           {enableEdits && (
             <div className="flex items-center justify-between gap-2 px-4">
               <div className=" p-2 bg-secondary rounded-lg flex justify-center items-center hover:bg-secondary/80 hover:shadow-sm">
-                <MessageSquareText className=" ml-auto size-5" />
+                <Chat
+                  messages={messages}
+                  message={message}
+                  setMessage={setMessage}
+                  handleSendMessage={handleSendMessage}
+                />
               </div>
 
               <Separator orientation="vertical" className="mr-2 h-5" />

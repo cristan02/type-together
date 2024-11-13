@@ -81,13 +81,15 @@ const Share = ({ documentId }: { documentId: string }) => {
   const [addMember, setAddMember] = useState<string>("");
   const [myAccessPermission, setMyAccessPermission] = useState<any>();
 
-  let user;
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      user = localStorage.getItem("user")
+      const user = localStorage.getItem("user")
         ? JSON.parse(localStorage.getItem("user") as string)
         : null;
+
+      setUser(user);
     }
   }, []);
 
@@ -132,19 +134,19 @@ const Share = ({ documentId }: { documentId: string }) => {
           setUsersAccess(usersAccess);
 
           const findMyAccess = res.data.data.accesses.find(
-            (access: any) => access.user.email === user.email
+            (access: any) => access?.user?.email === user?.email
           );
           setMyAccessPermission(findMyAccess?.permission || "view");
         })
         .catch((err) => {
           toast({
             variant: "destructive",
-            title: "Failed to document access.",
+            title: "Unable to access document.",
             description: err?.response?.data?.message || err?.message,
           });
         });
     }
-  }, [documentId]);
+  }, [documentId, user]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {

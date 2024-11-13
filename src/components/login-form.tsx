@@ -128,23 +128,23 @@ export function LoginForm() {
               Login
             </Button>
 
-            <div className=" w-full flex flex-col items-center justify-center relative">
+            {/* <div className=" w-full flex flex-col items-center justify-center relative">
               <div className=" z-10 px-2 bg-card w-fit text-card-foreground">
                 OR
               </div>
               <div className=" z-0 -translate-y-3 flex justify-center border-t border-gray-300 w-full" />
-            </div>
+            </div> */}
 
             {/* <Button className="w-full tracking-wider font-semibold flex items-center gap-2 bg-blue-700 hover:bg-blue-600  text-white">
               <FaGoogle />
               Login with Google
             </Button> */}
-            <Button
+            {/* <Button
               onClick={handleGithubLogin}
               className="w-full tracking-wider font-semibold flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white"
             >
               <FaGithub /> Login with Github
-            </Button>
+            </Button> */}
           </div>
         </form>
         <div className="mt-4 text-center text-sm">

@@ -13,19 +13,34 @@ const OpenDocument = () => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocument, setSelectedDocument] = useState<any>({});
 
+  const [user, setUser] = useState<any>();
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs`)
-      .then((res) => {
-        setDocuments(res.data.data);
-      })
-      .catch((err) => {
-        toast({
-          variant: "destructive",
-          title: "Failed to fetch documents.",
-          description: err.response.data.message,
-        });
-      });
+    if (typeof window !== "undefined") {
+      const user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user") as string)
+        : null;
+
+      setUser(user);
+
+      if (user) {
+        axios
+          .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          })
+          .then((res) => {
+            setDocuments(res.data.data);
+          })
+          .catch((err) => {
+            toast({
+              variant: "destructive",
+              title: "Failed to fetch documents.",
+              description: err.response.data.message,
+            });
+          });
+      }
+    }
   }, []);
 
   const handleOpen = async () => {

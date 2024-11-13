@@ -1,4 +1,6 @@
-"use client"; // Error boundaries must be Client Components
+"use client";
+
+import { useRouter } from "next/navigation";
 
 export default function GlobalError({
   error,
@@ -7,8 +9,9 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  const router = useRouter();
+
   return (
-    // global-error must include html and body tags
     <html>
       <body>
         <div className=" h-screen w-full flex flex-col justify-center items-center gap-4">
@@ -19,7 +22,7 @@ export default function GlobalError({
               if (typeof window !== "undefined") {
                 localStorage.removeItem("token");
                 localStorage.removeItem("user");
-                reset();
+                router.push("/login");
               }
             }}
           >

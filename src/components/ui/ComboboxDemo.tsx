@@ -103,13 +103,15 @@ export function ComboboxDemo2({
   const [value, setValue] = useState<string>(permission);
   const { toast } = useToast();
 
-  let user;
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      user = localStorage.getItem("user")
+      const user = localStorage.getItem("user")
         ? JSON.parse(localStorage.getItem("user") as string)
         : null;
+
+      setUser(user);
     }
   }, []);
 

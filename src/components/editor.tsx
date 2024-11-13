@@ -57,13 +57,15 @@ const Editor = ({
 
   const { toast } = useToast();
 
-  let user;
+  const [user, setUser] = useState<any>();
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      user = localStorage.getItem("user")
+      const user = localStorage.getItem("user")
         ? JSON.parse(localStorage.getItem("user") as string)
         : null;
+
+      setUser(user);
     }
   }, []);
 
@@ -91,10 +93,10 @@ const Editor = ({
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && user) {
       const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
         extraHeaders: {
-          userid: user?.id,
+          userid: user?.documentId,
           username: user?.username,
           auth: localStorage.getItem("token") || "",
         },
@@ -104,7 +106,7 @@ const Editor = ({
 
       const timer = setInterval(() => {
         socket.emit("save-document", {
-          snapshotId: snapshot?.id,
+          snapshotId: snapshot?.documentId,
           content: editor.getContents(),
         });
       }, 3000);
@@ -144,16 +146,19 @@ const Editor = ({
         const editor = quillRef.current.getEditor();
         const cursors = editor.getModule("cursors");
         cursors.createCursor(
-          user.id,
+          user?.id,
           `User ${user?.username}`,
           COLORS[Math.floor(Math.random() * COLORS.length)]
         );
-        cursors.moveCursor(user.id, range);
+        cursors.moveCursor(user?.id, range);
       };
       socket.on("receive-cursor", updateCursorPosition);
 
       socket.on("disconnect", () => {
-        socket.emit("save-document", editor.getContents());
+        socket.emit("save-document", {
+          snapshotId: snapshot?.documentId,
+          content: editor.getContents(),
+        });
         editor.disable();
       });
 
@@ -164,7 +169,7 @@ const Editor = ({
         socket.disconnect();
       };
     }
-  }, []);
+  }, [user]);
 
   const changeHandler = (newContent: any, delta: any, source: any) => {
     setContent(newContent);
