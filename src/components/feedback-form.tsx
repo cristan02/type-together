@@ -42,35 +42,37 @@ export function FeedbackForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    axios
-      .post(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/feedbacks`,
-        {
-          data: {
-            type,
-            message,
+    if (typeof window !== "undefined") {
+      axios
+        .post(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/feedbacks`,
+          {
+            data: {
+              type,
+              message,
+            },
           },
-        },
-        {
-          headers: {
-            Authorization: localStorage.getItem("token")
-              ? `Bearer ${localStorage.getItem("token")}`
-              : "",
-          },
-        }
-      )
-      .then(() => {
-        toast({ title: "Tankyou for you Feedback" });
-        setMessage("");
-        setValue(data[0].value);
-      })
-      .catch(() => {
-        toast({
-          variant: "destructive",
-          title: "Something went wrong",
-          description: "Please try again later",
+          {
+            headers: {
+              Authorization: localStorage.getItem("token")
+                ? `Bearer ${localStorage.getItem("token")}`
+                : "",
+            },
+          }
+        )
+        .then(() => {
+          toast({ title: "Tankyou for you Feedback" });
+          setMessage("");
+          setValue(data[0].value);
+        })
+        .catch(() => {
+          toast({
+            variant: "destructive",
+            title: "Something went wrong",
+            description: "Please try again later",
+          });
         });
-      });
+    }
   };
 
   return (

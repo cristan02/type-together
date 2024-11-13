@@ -19,6 +19,7 @@ import {
 
 export function NavMain({
   items,
+  enableEdits,
 }: {
   items: {
     name: string;
@@ -27,6 +28,7 @@ export function NavMain({
     componentTitle: string;
     component: React.ReactNode;
   }[];
+  enableEdits: boolean;
 }) {
   const { isMobile } = useSidebar();
 
@@ -35,24 +37,43 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <Dialog>
-              <DialogTrigger asChild>
-                <SidebarMenuButton asChild>
-                  <a href={item.url}>
-                    <item.icon />
-                    <span>{item.name}</span>
-                  </a>
-                </SidebarMenuButton>
-              </DialogTrigger>
+            {!enableEdits && item.name === "History" ? (
+              <Dialog>
+                <DialogTrigger asChild disabled={!enableEdits}>
+                  <SidebarMenuButton asChild>
+                    <div>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </DialogTrigger>
 
-              <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle>{item.componentTitle}</DialogTitle>
-                </DialogHeader>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>You Do not have this permission</DialogTitle>
+                  </DialogHeader>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Dialog>
+                <DialogTrigger asChild disabled={!enableEdits}>
+                  <SidebarMenuButton asChild>
+                    <div>
+                      <item.icon />
+                      <span>{item.name}</span>
+                    </div>
+                  </SidebarMenuButton>
+                </DialogTrigger>
 
-                {item?.component}
-              </DialogContent>
-            </Dialog>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>{item.componentTitle}</DialogTitle>
+                  </DialogHeader>
+
+                  {item?.component}
+                </DialogContent>
+              </Dialog>
+            )}
 
             {/* <DropdownMenu>
               {item?.component && item?.component}

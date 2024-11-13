@@ -66,28 +66,30 @@ export function SignUpForm() {
       return;
     }
 
-    await axios
-      .post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/local/register`, {
-        username,
-        email,
-        password,
-      })
-      .then((res) => {
-        if (res.data?.user) {
-          const user = res.data.user;
-          localStorage.setItem("token", res.data.jwt);
-          localStorage.setItem("user", JSON.stringify(user));
+    if (typeof window !== "undefined") {
+      await axios
+        .post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/local/register`, {
+          username,
+          email,
+          password,
+        })
+        .then((res) => {
+          if (res.data?.user) {
+            const user = res.data.user;
+            localStorage.setItem("token", res.data.jwt);
+            localStorage.setItem("user", JSON.stringify(user));
 
-          router.push("/getting-started");
-        }
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "There was a problem with your request.",
+            router.push("/getting-started");
+          }
+        })
+        .catch((error) => {
+          toast({
+            variant: "destructive",
+            title: "Uh oh! Something went wrong.",
+            description: "There was a problem with your request.",
+          });
         });
-      });
+    }
   };
 
   const handleGithubLogin = async () => {
@@ -118,6 +120,7 @@ export function SignUpForm() {
                 id="username"
                 type="text"
                 placeholder="John Doe"
+                value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
@@ -128,6 +131,7 @@ export function SignUpForm() {
                 id="email"
                 type="email"
                 placeholder="m@example.com"
+                value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
@@ -142,6 +146,7 @@ export function SignUpForm() {
               <Input
                 id="password"
                 type="password"
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />

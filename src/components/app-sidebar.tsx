@@ -37,12 +37,6 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-const user = {
-  name: "Ashbourn",
-  email: "ashbourn@mitwpu.edu.in",
-  avatar: "/avatars/shadcn.jpg",
-};
-
 const navMain = [
   {
     name: "New",
@@ -126,8 +120,24 @@ const navThird = [
   },
 ];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({
+  enableEdits,
+  setEnableEdits,
+}: {
+  enableEdits: boolean;
+  setEnableEdits: any;
+}) {
   const { toast } = useToast();
+
+  let user;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user") as string)
+        : null;
+    }
+  }, []);
 
   const [data, setData] = useState({
     user: user,
@@ -137,64 +147,47 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   });
 
   useEffect(() => {
-    axios
-      .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/starred-and-recents`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res) => {
-        const recents = res.data.recents
-          .filter((item: any) => item !== null)
-          .map((item: any) => {
+    if (typeof window !== "undefined") {
+      axios
+        .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/starred-and-recents`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        .then((res) => {
+          const recents = res.data.recents
+            .filter((item: any) => item !== null)
+            .map((item: any) => {
+              const { title, documentId } = item;
+              return { title, url: `/${documentId}` };
+            });
+
+          const starred = res.data.starred.map((item: any) => {
             const { title, documentId } = item;
-            return { title, url: `/document/${documentId}` };
+            return { title, url: `/${documentId}` };
           });
 
-        const starred = res.data.starred.map((item: any) => {
-          const { title, documentId } = item;
-          return { title, url: `/document/${documentId}` };
-        });
-
-        setData({
-          ...data,
-          navSecondary: [
-            {
-              ...data.navSecondary[0],
-              items: recents,
-            },
-            {
-              ...data.navSecondary[1],
-              items: starred,
-            },
-            ...data.navSecondary.slice(2),
-          ],
-        });
-
-        console.log(" test ", {
-          ...data,
-          navSecondary: [
-            {
-              ...data.navSecondary[0],
-              items: recents,
-            },
-            {
-              ...data.navSecondary[1],
-              items: starred,
-            },
-            ...data.navSecondary.slice(2),
-          ],
-        });
-      })
-      .catch((err) => {});
+          setData({
+            ...data,
+            navSecondary: [
+              {
+                ...data.navSecondary[0],
+                items: recents,
+              },
+              {
+                ...data.navSecondary[1],
+                items: starred,
+              },
+              ...data.navSecondary.slice(2),
+            ],
+          });
+        })
+        .catch((err) => {});
+    }
   }, []);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar variant="inset">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -215,7 +208,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} enableEdits={enableEdits} />
         <NavSecondary items={data.navSecondary} />
         <NavThird items={data.navThird} className="mt-auto" />
       </SidebarContent>

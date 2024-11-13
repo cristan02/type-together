@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -9,14 +9,20 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
+  CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
+  CommandShortcut,
 } from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import { AnyAaaaRecord } from "dns";
 
 export function ComboboxDemo({
   data,
@@ -77,12 +83,101 @@ export function ComboboxDemo({
 }
 
 export function ComboboxDemo2({
-  data,
+  userId,
+  permissionChoices,
+  permission,
+  accessId,
+  myAccessPermission,
+  setMyAccessPermission,
+  setUsersAccess,
 }: {
-  data: { value: string; label: string }[];
+  userId: string;
+  permissionChoices: { value: string; label: string }[];
+  permission: "edit" | "view";
+  accessId: string;
+  myAccessPermission: string;
+  setMyAccessPermission: any;
+  setUsersAccess: any;
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(data[0].value);
+  const [value, setValue] = useState<string>(permission);
+  const { toast } = useToast();
+
+  let user;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      user = localStorage.getItem("user")
+        ? JSON.parse(localStorage.getItem("user") as string)
+        : null;
+    }
+  }, []);
+
+  const handleUserAccessChange = (userPermission: string) => {
+    if (myAccessPermission === "view") {
+      toast({
+        variant: "destructive",
+        title: "You do not have permission to update user document access",
+      });
+      return;
+    }
+
+    if (userId === user.documentId) {
+      toast({
+        variant: "destructive",
+        title: "You cannot update your own access",
+      });
+      return;
+    }
+
+    if (typeof window !== "undefined") {
+      axios
+        .put(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/accesses/${accessId}?populate=user`,
+          {
+            data: {
+              permission: userPermission,
+            },
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        )
+        .then((res) => {
+          toast({
+            title: "User access updated",
+          });
+
+          console.log(res.data);
+          const updatedUsersAccess = {
+            userId: res.data.data.user.documentId,
+            accessId: res.data.data.documentId,
+            username: res.data.data.user.username,
+            email: res.data.data.user.email,
+            avatar: res.data.data.user.avatar,
+            permission: res.data.data.permission,
+          };
+
+          setUsersAccess((prev: any) => {
+            return prev.map((item: any) => {
+              if (item.userId === userId) {
+                return updatedUsersAccess;
+              }
+              return item;
+            });
+          });
+        })
+        .catch((err) => {
+          toast({
+            variant: "destructive",
+            title: "Failed to update user document access",
+            description: err.response.data.message,
+          });
+        });
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -94,7 +189,7 @@ export function ComboboxDemo2({
           className="w-full justify-between"
         >
           {value
-            ? data.find((item) => item.value === value)?.label
+            ? permissionChoices.find((item) => item.value === value)?.label
             : "Select framework..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -102,16 +197,27 @@ export function ComboboxDemo2({
       <PopoverContent className=" max-w-xs p-0">
         <Command className=" w-full">
           <CommandList className="w-full">
-            <CommandEmpty className="w-full">Not found.</CommandEmpty>
             <CommandGroup className="w-full">
-              {data.map((item) => (
+              {permissionChoices.map((item) => (
                 <CommandItem
                   className="w-full"
                   key={item.value}
                   value={item.value}
                   onSelect={(currentValue) => {
+                    if (myAccessPermission === "view") {
+                      toast({
+                        variant: "destructive",
+                        title:
+                          "You do not have permission to update user document access",
+                      });
+                      return;
+                    }
                     setValue(currentValue);
                     setOpen(false);
+
+                    if (value !== currentValue) {
+                      handleUserAccessChange(currentValue);
+                    }
                   }}
                 >
                   <Check

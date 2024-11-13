@@ -14,22 +14,24 @@ const DeleteDocument = () => {
   const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    axios
-      .delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      })
-      .then((res) => {
-        router.push("/getting-started");
-      })
-      .catch((err) => {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "An error occurred.",
+    if (typeof window !== "undefined") {
+      axios
+        .delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+        .then((res) => {
+          router.push("/getting-started");
+        })
+        .catch((err) => {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: "An error occurred.",
+          });
         });
-      });
+    }
   };
 
   return (

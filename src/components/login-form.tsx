@@ -50,26 +50,28 @@ export function LoginForm() {
       return;
     }
 
-    await axios
-      .post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/local`, {
-        identifier: email,
-        password,
-      })
-      .then((res) => {
-        if (res.data?.user) {
-          localStorage.setItem("token", res.data?.jwt);
-          localStorage.setItem("user", JSON.stringify(res.data?.user));
+    if (typeof window !== "undefined") {
+      await axios
+        .post(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/local`, {
+          identifier: email,
+          password,
+        })
+        .then((res) => {
+          if (res.data?.user) {
+            localStorage.setItem("token", res.data?.jwt);
+            localStorage.setItem("user", JSON.stringify(res.data?.user));
 
-          router.push("/getting-started");
-        }
-      })
-      .catch((error) => {
-        toast({
-          variant: "destructive",
-          title: "Invalid credentials.",
-          description: "Please check your email and password and try again.",
+            router.push("/getting-started");
+          }
+        })
+        .catch((error) => {
+          toast({
+            variant: "destructive",
+            title: "Invalid credentials.",
+            description: "Please check your email and password and try again.",
+          });
         });
-      });
+    }
   };
 
   const handleGithubLogin = async () => {
