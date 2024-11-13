@@ -77,12 +77,8 @@ export function LoginForm() {
   const handleGithubLogin = async () => {
     await axios
       .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github`)
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      .then((response) => {})
+      .catch((error) => {});
   };
 
   return (

@@ -95,12 +95,8 @@ export function SignUpForm() {
   const handleGithubLogin = async () => {
     await axios
       .get(`${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github`)
-      .then((res) => {
-        console.log(res.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      .then((res) => {})
+      .catch((error) => {});
   };
 
   return (

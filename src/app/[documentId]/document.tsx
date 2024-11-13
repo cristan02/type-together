@@ -50,7 +50,10 @@ const Document = ({ params }: { params: { documentId: string } }) => {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (documentId === "getting-started") {
+      setTitle("Getting Started");
+      setDoc(true);
+    } else if (typeof window !== "undefined") {
       axios
         .get(
           `${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${documentId}?populate[accesses][populate][0]=user`,
@@ -94,7 +97,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
   }, [documentId, user]);
 
   useEffect(() => {
-    if (user && doc) {
+    if (user && doc && documentId !== "getting-started") {
       if (
         doc.accesses.some(
           (access: any) => access.user.documentId === user.documentId
@@ -145,6 +148,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!user) return;
+    if (!enableEdits) return;
 
     setTitle(e.target.value);
     updateTitle(e.target.value);
@@ -215,7 +219,6 @@ const Document = ({ params }: { params: { documentId: string } }) => {
     if (socket == null) return;
     if (message.trim() === "") return;
 
-    console.log(message);
     const newMessage = {
       id: Date.now().toString(),
       user: user,

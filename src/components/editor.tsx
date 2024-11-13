@@ -8,6 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import QuillCursors from "quill-cursors";
+import { data } from "@/lib/data/getting-started";
 Quill.register("modules/cursors", QuillCursors);
 
 const TOOLBAR_OPTIONS = [
@@ -71,7 +72,7 @@ const Editor = ({
 
   useEffect(() => {
     async function postRecentDocument() {
-      if (typeof window !== "undefined") {
+      if (typeof window !== "undefined" && documentId !== "getting-started") {
         await axios
           .post(
             `${process.env.NEXT_PUBLIC_BASE_URL}/api/recents`,
@@ -93,7 +94,11 @@ const Editor = ({
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined" && user) {
+    if (
+      typeof window !== "undefined" &&
+      user &&
+      documentId != "getting-started"
+    ) {
       const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
         extraHeaders: {
           userid: user?.documentId,
@@ -183,6 +188,14 @@ const Editor = ({
       socket.emit("send-cursor", { range, user });
     }
   };
+
+  useEffect(() => {
+    if (documentId === "getting-started" && quillRef.current) {
+      const editor = quillRef.current.getEditor();
+      editor.disable();
+      editor.setContents(data);
+    }
+  }, [documentId, quillRef]);
 
   return (
     <ReactQuill

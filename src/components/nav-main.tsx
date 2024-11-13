@@ -37,7 +37,8 @@ export function NavMain({
       <SidebarMenu>
         {items.map((item) => (
           <SidebarMenuItem key={item.name}>
-            {!enableEdits && item.name === "History" ? (
+            {!enableEdits &&
+            (item.name === "History" || item.name === "Delete") ? (
               <Dialog>
                 <DialogTrigger asChild disabled={!enableEdits}>
                   <SidebarMenuButton asChild>

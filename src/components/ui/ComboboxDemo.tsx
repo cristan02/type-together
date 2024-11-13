@@ -152,7 +152,6 @@ export function ComboboxDemo2({
             title: "User access updated",
           });
 
-          console.log(res.data);
           const updatedUsersAccess = {
             userId: res.data.data.user.documentId,
             accessId: res.data.data.documentId,
