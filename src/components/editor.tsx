@@ -48,11 +48,15 @@ const Editor = ({
   enableEdits,
   setEnableEdits,
   socket,
+  enableView,
+  setEnableView,
 }: {
   documentId: string;
   enableEdits: boolean;
   setEnableEdits: any;
   socket: any;
+  enableView: boolean;
+  setEnableView: any;
 }) => {
   const quillRef = useRef<any>();
   const [content, setContent] = useState("");
@@ -93,6 +97,13 @@ const Editor = ({
     }
 
     postRecentDocument();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const editor = quillRef.current.getEditor();
+      editor.disable();
+    }
   }, []);
 
   useEffect(() => {

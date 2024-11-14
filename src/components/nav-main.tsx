@@ -21,6 +21,7 @@ export function NavMain({
   items,
   enableEdits,
   socket,
+  enableView,
 }: {
   items: {
     name: string;
@@ -31,6 +32,7 @@ export function NavMain({
   }[];
   enableEdits: boolean;
   socket: any;
+  enableView: boolean;
 }) {
   const { isMobile } = useSidebar();
 
@@ -39,7 +41,7 @@ export function NavMain({
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarMenu>
-        {items.map((item,index) => (
+        {items.map((item, index) => (
           <SidebarMenuItem key={index}>
             {!enableEdits &&
             (item.name === "History" || item.name === "Delete") ? (

@@ -18,6 +18,7 @@ import { Chat } from "@/components/chat";
 import { Message } from "@/components/chat";
 import io from "socket.io-client";
 import { Loading } from "@/components/loading";
+import NotFound from "@/app/not-found";
 
 const Editor = dynamic(
   () => import("@/components/editor").then((mod) => mod.default),
@@ -33,7 +34,10 @@ const Document = ({ params }: { params: { documentId: string } }) => {
   const [doc, setDoc] = useState<any>(null);
 
   const [enableEdits, setEnableEdits] = useState(false);
+  const [enableView, setEnableView] = useState(false);
   const documentId = params.documentId;
+
+  const [notFound, setNotFound] = useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
@@ -71,7 +75,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
           setTitle(res.data.data.title || "Untitled document");
 
           if (res.data.data.visibility === "open") {
-            setEnableEdits(true);
+            setEnableView(true);
           }
         })
         .catch((err) => {
@@ -81,7 +85,11 @@ const Document = ({ params }: { params: { documentId: string } }) => {
             description: "Please try again later.",
           });
 
-          router.back();
+          if (err.response.status === 404) {
+            setNotFound(true);
+            return;
+          }
+          // router.back();
         });
 
       axios
@@ -101,9 +109,12 @@ const Document = ({ params }: { params: { documentId: string } }) => {
     if (user && doc && documentId !== "getting-started") {
       if (
         doc.accesses.some(
-          (access: any) => access.user.documentId === user.documentId
+          (access: any) =>
+            access.user.documentId === user.documentId &&
+            access.permission === "edit"
         )
       ) {
+        setEnableView(true);
         setEnableEdits(true);
       }
     }
@@ -234,6 +245,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
     setMessage("");
   };
 
+  if (notFound) return <NotFound />;
   if (loading) return <Loading />;
 
   return (
@@ -242,6 +254,8 @@ const Document = ({ params }: { params: { documentId: string } }) => {
         <AppSidebar
           enableEdits={enableEdits}
           setEnableEdits={setEnableEdits}
+          enableView={enableView}
+          setEnableView={setEnableView}
           socket={socket}
         />
       )}
@@ -270,7 +284,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
             />
           </div>
 
-          {enableEdits && (
+          {enableView && (
             <div className="flex items-center justify-between gap-2 px-4">
               <div className=" p-2 bg-secondary rounded-lg flex justify-center items-center hover:bg-secondary/80 hover:shadow-sm">
                 <Chat
@@ -289,11 +303,15 @@ const Document = ({ params }: { params: { documentId: string } }) => {
                 <PhoneCall className=" ml-auto size-5" />
               </div> */}
 
-              <Separator orientation="vertical" className="mr-2 h-5" />
+              {enableEdits && (
+                <Separator orientation="vertical" className="mr-2 h-5" />
+              )}
 
-              <div className=" p-2 bg-sky-100 dark:bg-sky-500 rounded-lg flex justify-center items-center hover:bg-sky-200 dark:hover:bg-sky-600 hover:shadow-sm">
-                <Share documentId={documentId} />
-              </div>
+              {enableEdits && (
+                <div className=" p-2 bg-sky-100 dark:bg-sky-500 rounded-lg flex justify-center items-center hover:bg-sky-200 dark:hover:bg-sky-600 hover:shadow-sm">
+                  <Share documentId={documentId} />
+                </div>
+              )}
             </div>
           )}
         </header>
@@ -305,6 +323,8 @@ const Document = ({ params }: { params: { documentId: string } }) => {
               enableEdits={enableEdits}
               setEnableEdits={setEnableEdits}
               socket={socket}
+              enableView={enableView}
+              setEnableView={setEnableView}
             />
           </div>
         </div>

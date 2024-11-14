@@ -50,10 +50,14 @@ export function AppSidebar({
   enableEdits,
   setEnableEdits,
   socket,
+  enableView,
+  setEnableView,
 }: {
   enableEdits: boolean;
   setEnableEdits: any;
   socket: any;
+  enableView: boolean;
+  setEnableView: any;
 }) {
   const navMain = [
     {
@@ -224,6 +228,7 @@ export function AppSidebar({
         <NavMain
           items={data.navMain}
           enableEdits={enableEdits}
+          enableView={enableView}
           socket={socket}
         />
         <NavSecondary items={data.navSecondary} />

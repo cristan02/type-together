@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "@/components/ui/toaster";
+import { Validate } from "@/lib/validate";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,10 +37,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className=" flex justify-center w-full">
-            {children}
-            <Toaster />
-          </div>
+          <Validate>
+            <div className=" flex justify-center w-full">
+              {children}
+              <Toaster />
+            </div>
+          </Validate>
         </ThemeProvider>
       </body>
     </html>
