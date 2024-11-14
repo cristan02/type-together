@@ -23,8 +23,8 @@ export function NavThird({
     <SidebarGroup {...props}>
       <SidebarGroupContent>
         <SidebarMenu>
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
+          {items.map((item, idx) => (
+            <SidebarMenuItem key={idx}>
               <SidebarMenuButton asChild size="sm">
                 <a href={item.url}>
                   <item.icon />

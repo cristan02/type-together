@@ -63,17 +63,17 @@ const OpenDocument = () => {
           <div
             key={idx}
             className={`border p-2 rounded ${
-              selectedDocument?.id === doc.id && "border-blue-500"
+              selectedDocument?.id === doc?.id && "border-blue-500"
             }`}
             onClick={() => {
-              if (selectedDocument?.id === doc.id) {
+              if (selectedDocument?.id === doc?.id) {
                 setSelectedDocument({});
               } else {
                 setSelectedDocument(doc);
               }
             }}
           >
-            <Label>{doc.title}</Label>
+            <Label>{doc?.title}</Label>
           </div>
         ))}
       </div>

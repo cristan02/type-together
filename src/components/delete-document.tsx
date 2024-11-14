@@ -9,14 +9,14 @@ import { useRouter, useParams } from "next/navigation";
 const DeleteDocument = () => {
   const { toast } = useToast();
   const router = useRouter();
-  const { id } = useParams();
+  const { documentId } = useParams();
 
   const handleDelete = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (typeof window !== "undefined") {
       axios
-        .delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${id}`, {
+        .delete(`${process.env.NEXT_PUBLIC_BASE_URL}/api/docs/${documentId}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },

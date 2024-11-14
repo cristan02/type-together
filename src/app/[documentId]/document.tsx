@@ -17,11 +17,12 @@ import dynamic from "next/dynamic";
 import { Chat } from "@/components/chat";
 import { Message } from "@/components/chat";
 import io from "socket.io-client";
+import { Loading } from "@/components/loading";
 
 const Editor = dynamic(
   () => import("@/components/editor").then((mod) => mod.default),
   {
-    loading: () => <p>Loading...</p>,
+    loading: () => <Loading />,
   }
 );
 
@@ -188,6 +189,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<any>();
+  const [unread, setUnread] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window !== "undefined" && user) {
@@ -197,11 +199,13 @@ const Document = ({ params }: { params: { documentId: string } }) => {
           username: user?.username,
           auth: localStorage.getItem("token") || "",
         },
+        reconnection: false,
       });
 
       setSocket(socket);
 
       const handleMessages = (newMessage: Message) => {
+        setUnread(true);
         setMessages((prevMessages) => [...prevMessages, newMessage]);
       };
 
@@ -230,17 +234,21 @@ const Document = ({ params }: { params: { documentId: string } }) => {
     setMessage("");
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <Loading />;
 
   return (
     <SidebarProvider>
       {user && (
-        <AppSidebar enableEdits={enableEdits} setEnableEdits={setEnableEdits} />
+        <AppSidebar
+          enableEdits={enableEdits}
+          setEnableEdits={setEnableEdits}
+          socket={socket}
+        />
       )}
       <SidebarInset>
         <header className="flex flex-col sm:flex-row h-32 sm:h-16 shrink-0 justify-center sm:justify-between gap-2 w-full">
           <div className="flex items-center gap-2 px-4 w-full">
-            {enableEdits && <SidebarTrigger className="-ml-1" />}
+            {user && <SidebarTrigger className="-ml-1" />}
             {enableEdits && (
               <Separator orientation="vertical" className="mr-2 h-5" />
             )}
@@ -270,14 +278,16 @@ const Document = ({ params }: { params: { documentId: string } }) => {
                   message={message}
                   setMessage={setMessage}
                   handleSendMessage={handleSendMessage}
+                  unread={unread}
+                  setUnread={setUnread}
                 />
               </div>
 
-              <Separator orientation="vertical" className="mr-2 h-5" />
+              {/* <Separator orientation="vertical" className="mr-2 h-5" /> */}
 
-              <div className=" p-2 bg-secondary rounded-lg flex justify-center items-center hover:bg-secondary/80 hover:shadow-sm">
+              {/* <div className=" p-2 bg-secondary rounded-lg flex justify-center items-center hover:bg-secondary/80 hover:shadow-sm">
                 <PhoneCall className=" ml-auto size-5" />
-              </div>
+              </div> */}
 
               <Separator orientation="vertical" className="mr-2 h-5" />
 
@@ -294,6 +304,7 @@ const Document = ({ params }: { params: { documentId: string } }) => {
               documentId={documentId}
               enableEdits={enableEdits}
               setEnableEdits={setEnableEdits}
+              socket={socket}
             />
           </div>
         </div>

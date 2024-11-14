@@ -38,11 +38,15 @@ export function Chat({
   message,
   setMessage,
   handleSendMessage,
+  unread,
+  setUnread,
 }: {
   messages: Message[];
   message: string;
   setMessage: (message: string) => void;
   handleSendMessage: () => void;
+  unread: boolean;
+  setUnread: (unread: boolean) => void;
 }) {
   const [user, setUser] = useState<any>();
 
@@ -57,9 +61,18 @@ export function Chat({
   }, []);
 
   return (
-    <Sheet>
+    <Sheet
+      onOpenChange={() => {
+        setUnread(false);
+      }}
+    >
       <SheetTrigger asChild>
-        <MessageSquareText className=" ml-auto size-5" />
+        <div className=" relative">
+          {unread && (
+            <div className=" absolute right-0 h-2 w-2 rounded-full bg-red-500"></div>
+          )}
+          <MessageSquareText className=" ml-auto size-5" />
+        </div>
       </SheetTrigger>
       <SheetContent className="flex flex-col ">
         <SheetHeader>
@@ -81,7 +94,7 @@ export function Chat({
                               src={user?.avatar || ""}
                               alt={user?.username}
                             />
-                            <AvatarFallback className="rounded-lg uppercase p-2 bg-sky-100">
+                            <AvatarFallback className="rounded-lg uppercase p-2 bg-sky-100 dark:text-black">
                               {user?.username.slice(0, 2)}
                             </AvatarFallback>
                           </Avatar>
@@ -93,7 +106,7 @@ export function Chat({
                     </TooltipProvider>
 
                     <div className=" flex flex-col max-w-[70%]">
-                      <div className=" rounded-lg rounded-tl-none bg-sky-100 p-2">
+                      <div className=" rounded-lg rounded-tl-none bg-sky-100 p-2 dark:text-black">
                         {message.message}
                       </div>
                     </div>
@@ -101,7 +114,7 @@ export function Chat({
                 ) : (
                   <div className=" flex gap-2 w-full justify-end mb-2">
                     <div className=" flex flex-col max-w-[70%]">
-                      <div className=" rounded-lg rounded-br-none bg-gray-100 p-2">
+                      <div className=" rounded-lg rounded-br-none bg-gray-100 p-2 dark:text-black">
                         {message.message}
                       </div>
                     </div>

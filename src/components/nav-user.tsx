@@ -18,6 +18,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { useRouter } from "next/navigation";
+import { Switch } from "@/components/ui/switch";
+import { useTheme } from "next-themes";
 
 export function NavUser({
   user,
@@ -30,6 +32,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
@@ -83,6 +86,14 @@ export function NavUser({
                 </div>
               </div>
             </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <div className=" flex p-2 items-center gap-8">
+              Dark mode
+              <Switch
+                checked={theme === "dark"}
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              />
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout}>
               <LogOut />

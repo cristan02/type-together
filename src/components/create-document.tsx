@@ -38,7 +38,7 @@ const CreateDocument = () => {
         }
       )
       .then((res) => {
-        router.push(`/${res.data.data.id}`);
+        router.push(`/${res.data.data.documentId}`);
       })
       .catch((err) => {
         toast({

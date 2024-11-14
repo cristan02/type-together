@@ -314,9 +314,9 @@ const Share = ({ documentId }: { documentId: string }) => {
                             user.email.includes(addMember) &&
                             !isUserInAccessList(user.email)
                         )
-                        .map((user: any) => (
+                        .map((user: any, idx) => (
                           <CommandItem
-                            key={user.email}
+                            key={idx}
                             value={user.email}
                             onSelect={(currentValue) => {
                               setAddMember("");

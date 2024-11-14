@@ -35,8 +35,8 @@ export function NavSecondary({
   return (
     <SidebarGroup>
       <SidebarMenu>
-        {items.map((item) => (
-          <Collapsible key={item.title} asChild defaultOpen={item.isActive}>
+        {items.map((item, idx) => (
+          <Collapsible key={idx} asChild defaultOpen={item.isActive}>
             <SidebarMenuItem>
               <SidebarMenuButton asChild tooltip={item.title}>
                 <div>
@@ -54,8 +54,8 @@ export function NavSecondary({
                   </CollapsibleTrigger>
                   <CollapsibleContent>
                     <SidebarMenuSub>
-                      {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
+                      {item.items?.map((subItem, idx) => (
+                        <SidebarMenuSubItem key={idx}>
                           <SidebarMenuSubButton asChild>
                             <a href={subItem.url}>
                               <span>{subItem.title}</span>

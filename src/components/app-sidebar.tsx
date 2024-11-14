@@ -31,104 +31,114 @@ import {
 import { ThemeChanger } from "@/components/theme-changer";
 import { CreateDocument } from "@/components/create-document";
 import { DeleteDocument } from "@/components/delete-document";
-import { DocumentHistory } from "@/components/document-history";
+// import { DocumentHistory } from "@/components/document-history";
 import { OpenDocument } from "@/components/open-document";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import { Loading } from "@/components/loading";
 
-const navMain = [
+const DocumentHistory = dynamic(
+  () => import("@/components/document-history").then((mod) => mod.default),
   {
-    name: "New",
-    url: "#",
-    icon: FileText,
-    componentTitle: "Create Document",
-    component: <CreateDocument />,
-  },
-  {
-    name: "Open",
-    url: "#",
-    icon: Folder,
-    componentTitle: "Open Document",
-    component: <OpenDocument />,
-  },
-  {
-    name: "Delete",
-    url: "#",
-    icon: Trash2,
-    componentTitle: "Delete Document",
-    component: <DeleteDocument />,
-  },
-  {
-    name: "History",
-    url: "#",
-    icon: History,
-    componentTitle: "Document History",
-    component: <DocumentHistory />,
-  },
-];
-
-const navSecondary = [
-  {
-    title: "Recent",
-    url: "#",
-    icon: Rows3,
-    isActive: true,
-    items: [],
-  },
-  {
-    title: "Starred",
-    url: "#",
-    icon: Star,
-    items: [],
-  },
-  {
-    title: "Download",
-    url: "#",
-    icon: Download,
-    items: [
-      {
-        title: "PDF Document (.pdf)",
-        url: "#",
-      },
-      {
-        title: "Microsoft Word (.docx)",
-        url: "#",
-      },
-      {
-        title: "Plain Text (.txt)",
-        url: "#",
-      },
-      {
-        title: "Markdown (.md)",
-        url: "#",
-      },
-    ],
-  },
-];
-
-const navThird = [
-  {
-    title: "Support",
-    url: "/support",
-    icon: LifeBuoy,
-  },
-  {
-    title: "Feedback",
-    url: "/feedback",
-    icon: Send,
-  },
-];
+    loading: () => <Loading />,
+  }
+);
 
 export function AppSidebar({
   enableEdits,
   setEnableEdits,
+  socket,
 }: {
   enableEdits: boolean;
   setEnableEdits: any;
+  socket: any;
 }) {
-  const { toast } = useToast();
+  const navMain = [
+    {
+      name: "New",
+      url: "#",
+      icon: FileText,
+      componentTitle: "Create Document",
+      component: <CreateDocument />,
+    },
+    {
+      name: "Open",
+      url: "#",
+      icon: Folder,
+      componentTitle: "Open Document",
+      component: <OpenDocument />,
+    },
+    {
+      name: "Delete",
+      url: "#",
+      icon: Trash2,
+      componentTitle: "Delete Document",
+      component: <DeleteDocument />,
+    },
+    {
+      name: "History",
+      url: "#",
+      icon: History,
+      componentTitle: "Document History",
+      component: <DocumentHistory socket={socket} setOpen={() => {}} />,
+    },
+  ];
 
+  const navSecondary = [
+    {
+      title: "Recent",
+      url: "#",
+      icon: Rows3,
+      isActive: true,
+      items: [],
+    },
+    {
+      title: "Starred",
+      url: "#",
+      icon: Star,
+      items: [],
+    },
+    // {
+    //   title: "Download",
+    //   url: "#",
+    //   icon: Download,
+    //   items: [
+    //     {
+    //       title: "PDF Document (.pdf)",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Microsoft Word (.docx)",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Plain Text (.txt)",
+    //       url: "#",
+    //     },
+    //     {
+    //       title: "Markdown (.md)",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
+  ];
+
+  const navThird = [
+    {
+      title: "Support",
+      url: "/support",
+      icon: LifeBuoy,
+    },
+    {
+      title: "Feedback",
+      url: "/feedback",
+      icon: Send,
+    },
+  ];
+
+  const { toast } = useToast();
   const [user, setUser] = useState<any>();
 
   useEffect(() => {
@@ -211,7 +221,11 @@ export function AppSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} enableEdits={enableEdits} />
+        <NavMain
+          items={data.navMain}
+          enableEdits={enableEdits}
+          socket={socket}
+        />
         <NavSecondary items={data.navSecondary} />
         <NavThird items={data.navThird} className="mt-auto" />
       </SidebarContent>

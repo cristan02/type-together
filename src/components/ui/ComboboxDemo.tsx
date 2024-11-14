@@ -55,10 +55,10 @@ export function ComboboxDemo({
           <CommandList className="w-full">
             <CommandEmpty className="w-full">Not found.</CommandEmpty>
             <CommandGroup className="w-full">
-              {data.map((item) => (
+              {data.map((item, idx) => (
                 <CommandItem
                   className="w-full"
-                  key={item.value}
+                  key={idx}
                   value={item.value}
                   onSelect={(currentValue) => {
                     setValue(currentValue);
@@ -199,10 +199,10 @@ export function ComboboxDemo2({
         <Command className=" w-full">
           <CommandList className="w-full">
             <CommandGroup className="w-full">
-              {permissionChoices.map((item) => (
+              {permissionChoices.map((item, idx) => (
                 <CommandItem
                   className="w-full"
-                  key={item.value}
+                  key={idx}
                   value={item.value}
                   onSelect={(currentValue) => {
                     if (myAccessPermission === "view") {

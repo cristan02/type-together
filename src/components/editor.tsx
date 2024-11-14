@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import io from "socket.io-client";
 import QuillCursors from "quill-cursors";
 import { data } from "@/lib/data/getting-started";
+import Delta from "quill-delta";
 Quill.register("modules/cursors", QuillCursors);
 
 const TOOLBAR_OPTIONS = [
@@ -46,13 +47,14 @@ const Editor = ({
   documentId,
   enableEdits,
   setEnableEdits,
+  socket,
 }: {
   documentId: string;
   enableEdits: boolean;
   setEnableEdits: any;
+  socket: any;
 }) => {
   const quillRef = useRef<any>();
-  const [socket, setSocket] = useState<any>();
   const [content, setContent] = useState("");
   const [snapshot, setSnapshot] = useState<any>();
 
@@ -97,16 +99,9 @@ const Editor = ({
     if (
       typeof window !== "undefined" &&
       user &&
-      documentId != "getting-started"
+      documentId != "getting-started" &&
+      socket
     ) {
-      const socket = io(process.env.NEXT_PUBLIC_BASE_URL, {
-        extraHeaders: {
-          userid: user?.documentId,
-          username: user?.username,
-          auth: localStorage.getItem("token") || "",
-        },
-      });
-
       const editor = quillRef.current.getEditor();
 
       const timer = setInterval(() => {
@@ -118,13 +113,14 @@ const Editor = ({
 
       editor.disable();
       editor.setText("");
-      setSocket(socket);
       socket.emit("get-document", documentId);
 
       // load document
       const loadDocument = (snapshot: any) => {
         setSnapshot(snapshot);
+        editor.setContents(new Delta());
         editor.setContents(snapshot.content);
+
         if (enableEdits) {
           editor.enable();
         }
@@ -144,6 +140,8 @@ const Editor = ({
         editor?.updateContents(delta);
       };
       socket.on("receive-changes", updateChangesWithDelta);
+
+      socket.on("recieve-restore", loadDocument);
 
       const updateCursorPosition = (data: any, receivedId: any) => {
         const { range, user } = data;
@@ -170,7 +168,9 @@ const Editor = ({
       return () => {
         clearInterval(timer);
         socket.off("receive-changes", updateChangesWithDelta);
+        socket.off("recieve-restore", loadDocument);
         socket.off("receive-cursor", updateCursorPosition);
+        socket.off("disconnect");
         socket.disconnect();
       };
     }
