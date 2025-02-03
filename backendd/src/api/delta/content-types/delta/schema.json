@@ -1,0 +1,36 @@
+{
+  "kind": "collectionType",
+  "collectionName": "deltas",
+  "info": {
+    "singularName": "delta",
+    "pluralName": "deltas",
+    "displayName": "delta",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "doc": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::doc.doc",
+      "inversedBy": "deltas"
+    },
+    "snapshot": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::snapshot.snapshot",
+      "inversedBy": "deltas"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "content": {
+      "type": "json"
+    }
+  }
+}

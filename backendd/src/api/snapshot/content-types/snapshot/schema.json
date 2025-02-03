@@ -1,0 +1,31 @@
+{
+  "kind": "collectionType",
+  "collectionName": "snapshots",
+  "info": {
+    "singularName": "snapshot",
+    "pluralName": "snapshots",
+    "displayName": "snapshot",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "doc": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::doc.doc",
+      "inversedBy": "snapshots"
+    },
+    "deltas": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delta.delta",
+      "mappedBy": "snapshot"
+    },
+    "content": {
+      "type": "json"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "collectionType",
+  "collectionName": "accesses",
+  "info": {
+    "singularName": "access",
+    "pluralName": "accesses",
+    "displayName": "access",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "doc": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::doc.doc",
+      "inversedBy": "accesses"
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "permission": {
+      "type": "enumeration",
+      "enum": [
+        "edit",
+        "view"
+      ]
+    }
+  }
+}

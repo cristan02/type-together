@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "docs",
+  "info": {
+    "singularName": "doc",
+    "pluralName": "docs",
+    "displayName": "doc",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
+    },
+    "snapshots": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::snapshot.snapshot",
+      "mappedBy": "doc"
+    },
+    "deltas": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::delta.delta",
+      "mappedBy": "doc"
+    },
+    "accesses": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::access.access",
+      "mappedBy": "doc"
+    },
+    "visibility": {
+      "type": "enumeration",
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "default": "closed"
+    }
+  }
+}
